@@ -328,3 +328,8 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+#Zip files
+*.zip
+#Exercices folder
+/linq-fundamentals-csharp-6/
