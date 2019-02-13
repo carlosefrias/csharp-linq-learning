@@ -17,7 +17,7 @@ namespace Cars
         public int Highway { get; set; }
         public int Combined { get; set; }
 
-        public static Car LoadCarFromCSV(string line)
+        internal static Car LoadCarFromCSV(string line)
         {
             var strArray = line.Split(',');
             return new Car()
