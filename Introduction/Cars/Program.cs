@@ -13,29 +13,38 @@ namespace Cars
         {
             var cars = ProcessCars("fuel.csv");
             var manufacturers = ProcessManufacturers("manufacturers.csv");
-            
-            //Challange enumerate the top 3 most effient cars by country
-            //My solution
-            var query3 = cars.Join(manufacturers,
-                                    c => c.Manufacturer,
-                                    m => m.Name, 
-                                    (c, m) => new
-                                    {
-                                        m.Headquarters,
-                                        c.Name,
-                                        c.Combined
-                                    })
-                                .GroupBy(g => g.Headquarters);
 
-            foreach (var group in query3)
+            var query = from car in cars
+                        group car by car.Manufacturer into carGroup
+                        select new
+                        {
+                            Name = carGroup.Key.ToUpper(),
+                            Max = carGroup.Max(c => c.Combined),
+                            Min = carGroup.Min(c => c.Combined),
+                            Avg = carGroup.Average(c => c.Combined),
+                            Count = carGroup.Count()
+                        } into result
+                        orderby result.Max descending
+                        select result;
+            var query2 = cars.GroupBy(c => c.Manufacturer)
+                            .Select(g => new
+                            {
+                                Name = g.Key.ToUpper(),
+                                Max = g.Max(c => c.Combined),
+                                Min = g.Min(c => c.Combined),
+                                Avg = g.Average(c => c.Combined),
+                                Count = g.Count(),
+                            })
+                            .OrderByDescending(a => a.Max);
+
+            foreach (var item in query2)
             {
-                Console.WriteLine($"{group.Key}:");
-                foreach (var car in group.OrderByDescending(c => c.Combined).Take(3))
-                {
-                    Console.WriteLine($"\t{car.Name} : {car.Combined}");
-                }
+                Console.WriteLine($"{item.Name}:");
+                Console.WriteLine($"\tMax: {item.Max}");
+                Console.WriteLine($"\tMin: {item.Min}");
+                Console.WriteLine($"\tAvg: {item.Avg}");
+                Console.WriteLine($"\tCount: {item.Count}");
             }
-
 
             Console.WriteLine("Press enter to exit...");
             Console.ReadLine();
