@@ -14,32 +14,22 @@ namespace Cars
             var cars = ProcessCars("fuel.csv");
             var manufacturers = ProcessManufacturers("manufacturers.csv");
             var query = from car in cars
-                        join manufacturer in manufacturers 
-                            on new { car.Manufacturer , car.Year}
-                            equals new { Manufacturer = manufacturer.Name, manufacturer.Year }
-                        orderby car.Combined descending, car.Name
-                        select new
-                        {
-                            manufacturer.Headquarters,
-                            car.Name,
-                            car.Combined
-                        };
-            var query2 = cars.Join(manufacturers,
-                                    c => new { c.Manufacturer , c.Year},
-                                    m => new { Manufacturer = m.Name, m.Year },
-                                    (c, m) => new
-                                    {
-                                        m.Headquarters,
-                                        c.Name,
-                                        c.Combined
-                                    })
-                                .OrderByDescending(c => c.Combined)
-                                .ThenBy(c => c.Name);
+                        group car by car.Manufacturer.ToUpper() into manufacturer
+                        orderby manufacturer.Key
+                        select manufacturer;
 
-            foreach (var car in query2.Take(10))
+            var query2 = cars.GroupBy(c => c.Manufacturer.ToUpper())
+                            .OrderBy(g => g.Key);
+
+            foreach (var group in query2)
             {
-                Console.WriteLine($"{car.Headquarters} {car.Name} : {car.Combined}");
+                Console.WriteLine(group.Key);
+                foreach (var car in group.OrderByDescending(c => c.Combined).Take(2))
+                {
+                    Console.WriteLine($"\t{car.Name} : {car.Combined}");
+                }
             }
+
             Console.WriteLine("Press enter to exit...");
             Console.ReadLine();
         }
